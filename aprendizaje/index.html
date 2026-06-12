@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BST Visualizador Interactivo — SIS210 UNAP</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+    <div class="left-column">
+        <h1>BST Visualizador Interactivo</h1>
+        <p class="subtitle">SIS210 Algoritmos y Estructuras de Datos &mdash; UNAP Puno</p>
+
+        <div class="controls">
+            <div class="row">
+                <input type="number" id="val-input" placeholder="Valor entero" min="1" max="9999">
+                <button class="btn btn-insert" onclick="doInsert()">INSERTAR</button>
+                <button class="btn btn-search" onclick="doSearch()">BUSCAR</button>
+                <button class="btn btn-delete" onclick="doDelete()">ELIMINAR</button>
+                <button class="btn btn-clear" onclick="doClear()">LIMPIAR</button>
+            </div>
+            <div class="row">
+                <button class="btn btn-traversal" onclick="doTraversal('inOrder')">IN-ORDER</button>
+                <button class="btn btn-traversal" onclick="doTraversal('preOrder')">PRE-ORDER</button>
+                <button class="btn btn-traversal" onclick="doTraversal('postOrder')">POST-ORDER</button>
+                <button class="btn btn-traversal" onclick="doTraversal('bfs')">BFS</button>
+            </div>
+            <div class="row">
+                <button class="btn btn-example" onclick="loadExample7()">7 nodos balanceados</button>
+                <button class="btn btn-example" onclick="loadDegenerate()">Arbol degenerado</button>
+                <button class="btn btn-example" onclick="loadRandom10()">10 aleatorios</button>
+            </div>
+            <div id="traversal-result"></div>
+        </div>
+
+        <div class="canvas-container">
+            <svg id="bst-canvas" width="100%" height="480"></svg>
+        </div>
+
+        <div id="stats-bar">
+            <div>Nodos: <span id="stat-nodes">0</span></div>
+            <div>Altura: <span id="stat-height">-1</span></div>
+            <div>In-Order: <span id="stat-inorder">[]</span></div>
+        </div>
+
+        <div class="education">
+            <details>
+                <summary>Invariante BST</summary>
+                <div class="content">
+                    <p>La <strong>invariante BST</strong> establece que para todo nodo <code>n</code>:</p>
+                    <p style="text-align:center;font-size:14px;margin:6px 0;">
+                        <code>max(subarbol_izquierdo) &lt; n.clave &lt; min(subarbol_derecho)</code>
+                    </p>
+                    <p>Esta propiedad se cumple recursivamente en todos los subarboles, permitiendo que la busqueda descarte la mitad del arbol en cada paso (O(log n) promedio).</p>
+                    <svg width="180" height="70" viewBox="0 0 180 70">
+                        <circle cx="90" cy="25" r="18" fill="#6366f1" stroke="#fff" stroke-width="1.5"/>
+                        <text x="90" y="30" fill="white" font-size="12" text-anchor="middle" font-family="monospace" font-weight="600">50</text>
+                        <line x1="55" y1="48" x2="80" y2="60" stroke="#2a2d3a" stroke-width="1.5"/>
+                        <line x1="125" y1="48" x2="100" y2="60" stroke="#2a2d3a" stroke-width="1.5"/>
+                        <text x="38" y="66" fill="#5a6278" font-size="10" text-anchor="middle">&lt; 50</text>
+                        <text x="142" y="66" fill="#5a6278" font-size="10" text-anchor="middle">&gt; 50</text>
+                    </svg>
+                </div>
+            </details>
+            <details>
+                <summary>Complejidad Big-O</summary>
+                <div class="content">
+                    <table>
+                        <tr><th>Operacion</th><th>Mejor</th><th>Promedio</th><th>Peor</th><th>Espacio</th></tr>
+                        <tr><td>Insertar</td><td>O(1)</td><td>O(log n)</td><td>O(n)</td><td>O(h)</td></tr>
+                        <tr><td>Buscar</td><td>O(1)</td><td>O(log n)</td><td>O(n)</td><td>O(h)</td></tr>
+                        <tr><td>Eliminar</td><td>O(1)</td><td>O(log n)</td><td>O(n)</td><td>O(h)</td></tr>
+                        <tr><td>Recorridos</td><td>—</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr>
+                    </table>
+                    <p style="margin-top:6px;color:#5a6278;">Donde <code>h</code> es la altura del arbol. En un arbol balanceado, h &asymp; log&#8322;(n).</p>
+                </div>
+            </details>
+            <details>
+                <summary>Los 3 casos de eliminacion</summary>
+                <div class="content">
+                    <p><strong>Caso 1: Hoja</strong> — Se elimina directamente.</p>
+                    <svg width="140" height="50" viewBox="0 0 140 50">
+                        <circle cx="40" cy="25" r="14" fill="#6366f1" stroke="#fff" stroke-width="1.5"/>
+                        <text x="40" y="29" fill="white" font-size="9" text-anchor="middle" font-family="monospace">30</text>
+                        <text x="65" y="29" fill="#f87171" font-size="12">&rarr;</text>
+                        <circle cx="90" cy="25" r="14" fill="#22c55e" stroke="#fff" stroke-width="1.5" opacity="0.3"/>
+                        <text x="90" y="29" fill="white" font-size="9" text-anchor="middle" font-family="monospace" opacity="0.3">30</text>
+                    </svg>
+                    <p><strong>Caso 2: Un hijo</strong> — Se reemplaza con el hijo.</p>
+                    <svg width="140" height="50" viewBox="0 0 140 50">
+                        <circle cx="40" cy="25" r="14" fill="#6366f1" stroke="#fff" stroke-width="1.5"/>
+                        <text x="40" y="29" fill="white" font-size="9" text-anchor="middle" font-family="monospace">30</text>
+                        <text x="65" y="29" fill="#f87171" font-size="12">&rarr;</text>
+                        <circle cx="90" cy="25" r="14" fill="#f59e0b" stroke="#fff" stroke-width="1.5"/>
+                        <text x="90" y="29" fill="white" font-size="9" text-anchor="middle" font-family="monospace">40</text>
+                    </svg>
+                    <p><strong>Caso 3: Dos hijos</strong> — Se reemplaza con el sucesor in-order (minimo del subarbol derecho).</p>
+                    <svg width="140" height="50" viewBox="0 0 140 50">
+                        <circle cx="40" cy="25" r="14" fill="#6366f1" stroke="#fff" stroke-width="1.5"/>
+                        <text x="40" y="29" fill="white" font-size="9" text-anchor="middle" font-family="monospace">50</text>
+                        <text x="65" y="29" fill="#f87171" font-size="12">&rarr;</text>
+                        <circle cx="90" cy="25" r="14" fill="#8b5cf6" stroke="#fff" stroke-width="1.5"/>
+                        <text x="90" y="29" fill="white" font-size="9" text-anchor="middle" font-family="monospace">60</text>
+                    </svg>
+                </div>
+            </details>
+            <details>
+                <summary>BST vs Lista vs Diccionario</summary>
+                <div class="content">
+                    <table>
+                        <tr><th>Estructura</th><th>Buscar</th><th>Insertar</th><th>Orden</th><th>Rango</th></tr>
+                        <tr><td>Lista</td><td>O(n)</td><td>O(1)</td><td>No</td><td>O(n)</td></tr>
+                        <tr><td>BST</td><td>O(log n)</td><td>O(log n)</td><td>Si</td><td>O(log n + k)</td></tr>
+                        <tr><td>Dict</td><td>O(1)</td><td>O(1)</td><td>No</td><td>O(n)</td></tr>
+                    </table>
+                    <p style="margin-top:6px;color:#5a6278;">Use BST cuando necesite recorrido ordenado, busqueda por rangos o sucesor/predecesor.</p>
+                </div>
+            </details>
+        </div>
+
+        <div class="footer">
+            SIS210 &mdash; UNAP Puno 2025 | Dr. Aldo Hernan Zanabria Galvez
+        </div>
+    </div>
+
+    <div class="right-column">
+        <div id="code-panel">
+            <div id="code-title">Codigo en ejecucion</div>
+            <div id="code-operation-name"></div>
+            <pre id="code-lines"></pre>
+        </div>
+        <div id="log-panel">
+            <div id="log-title">Log de operaciones</div>
+            <div id="log-entries"></div>
+        </div>
+    </div>
+</div>
+
+<script src="bst_core.js"></script>
+<script src="bst_renderer.js"></script>
+<script src="bst_code_panel.js"></script>
+<script src="bst_animator.js"></script>
+<script>
+const bst = new BST();
+const codePanel = new CodePanel();
+const logPanel = document.getElementById('log-panel');
+const statsBar = document.getElementById('stats-bar');
+const svgEl = document.getElementById('bst-canvas');
+const animator = new BSTAnimator(bst, renderTree, codePanel, logPanel, statsBar, svgEl);
+
+function doInsert() {
+    if (animator.animating) return;
+    const input = document.getElementById('val-input');
+    const val = parseInt(input.value);
+    if (isNaN(val)) return;
+    input.value = '';
+    animator.animateInsert(val);
+}
+
+function doSearch() {
+    if (animator.animating) return;
+    const input = document.getElementById('val-input');
+    const val = parseInt(input.value);
+    if (isNaN(val)) return;
+    input.value = '';
+    animator.animateSearch(val);
+}
+
+function doDelete() {
+    if (animator.animating) return;
+    const input = document.getElementById('val-input');
+    const val = parseInt(input.value);
+    if (isNaN(val)) return;
+    input.value = '';
+    animator.animateDelete(val);
+}
+
+function doClear() {
+    bst.clear();
+    animator._render({});
+    const logEntries = document.getElementById('log-entries');
+    if (logEntries) logEntries.innerHTML = '';
+    const resultEl = document.getElementById('traversal-result');
+    if (resultEl) resultEl.innerHTML = '';
+    animator._updateStats();
+}
+
+function doTraversal(type) {
+    if (animator.animating) return;
+    const names = { inOrder: 'In-Order', preOrder: 'Pre-Order', postOrder: 'Post-Order', bfs: 'BFS' };
+    if (bst.root === null) {
+        animator._addLog(names[type] + ': arbol vacio', 'error');
+        return;
+    }
+    animator.animateTraversal(type);
+}
+
+function loadExample7() {
+    if (animator.animating) return;
+    bst.clear();
+    animator._render({});
+    document.getElementById('log-entries').innerHTML = '';
+    document.getElementById('traversal-result').innerHTML = '';
+    [50, 30, 70, 20, 40, 60, 80].forEach(v => bst.insert(v));
+    animator._render({});
+    animator._updateStats();
+    animator._addLog('Cargado ejemplo de 7 nodos', 'insert');
+}
+
+function loadDegenerate() {
+    if (animator.animating) return;
+    bst.clear();
+    animator._render({});
+    document.getElementById('log-entries').innerHTML = '';
+    document.getElementById('traversal-result').innerHTML = '';
+    [1, 2, 3, 4, 5, 6, 7].forEach(v => bst.insert(v));
+    animator._render({});
+    animator._updateStats();
+    animator._addLog('Cargado arbol degenerado', 'insert');
+}
+
+function loadRandom10() {
+    if (animator.animating) return;
+    bst.clear();
+    animator._render({});
+    document.getElementById('log-entries').innerHTML = '';
+    document.getElementById('traversal-result').innerHTML = '';
+    const nums = [];
+    while (nums.length < 10) {
+        const n = Math.floor(Math.random() * 200) + 1;
+        if (!nums.includes(n)) nums.push(n);
+    }
+    nums.forEach(v => bst.insert(v));
+    animator._render({});
+    animator._updateStats();
+    animator._addLog('Cargados 10 valores aleatorios', 'insert');
+}
+
+window.addEventListener('resize', function() {
+    if (!animator.animating) {
+        animator._render({});
+    }
+});
+</script>
+</body>
+</html>

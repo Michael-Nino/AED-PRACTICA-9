@@ -7,7 +7,7 @@
 |---|---|
 | **Estudiante** | APAZA SORITJA MICHAEL ANTHONY |
 | **Docente** | Dr. Aldo Hernan Zanabria Galvez |
-| **Semestre** | 2025 |
+| **Semestre** | 2026-I |
 
 ---
 
